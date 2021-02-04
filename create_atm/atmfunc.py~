@@ -1,0 +1,11 @@
+##file containing functions to calculate atmospheric properties
+
+import numpy as np
+
+
+
+def h2p(height): ##height in km to pressure in Pascals converter
+        ps = 101325
+        H = 7
+
+        print(ps * np.exp(-float(height)/H))
