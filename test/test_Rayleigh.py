@@ -6,8 +6,9 @@ Module '_disort' is auto-generated with f2py (version:2).
 """
 
 import numpy as np
-from pylab import plt
+#import matplotlib
 import disort
+
 
 ##########################################################################################################
 
@@ -18,6 +19,7 @@ if __name__ == '__main__':
     dTau   = xy[::-1,1]  # FROM TOP TO BOTTOM
     z_atm  = xy[::-1,0]  # last altitude value missing, find in header
     z_atm  = np.insert(z_atm, 0, 120.)
+    nmom = 1000
 
     N_tau  = len(dTau)
     w0     = np.ones(N_tau)*1.
@@ -34,16 +36,22 @@ if __name__ == '__main__':
     umu    = np.array([-1.,-0.5,0.5,1.])
     prnt   = np.array([True, True, True, False, True])
 
+    p = np.ones((len(dTau), nmom))*0.002
+    p[48] = p[48]*1.5
+    for i in range(len(p)):
+        p[i][0] = int(1)
+        p[i][1] =  0.5
+
     [rfldir, rfldn, flup, dfdt, uavg, uu, albmed, trnmed] =\
-                                      disort.run(dTau, w0=w0, iphas=iphas, gg=gg,
+                                      disort.run(dTau, w0=w0, iphas=iphas, uphas=p, gg=gg,
                                                  umu0=umu0, phi0=phi0, albedo=albedo, fbeam=fbeam,
                                                  utau=uTau, umu=umu, phi=phi, prnt=prnt)
 
     rfltot = rfldir + rfldn
     print '\n# Energy conservation, R(TOA)+T(BOA)*(1-albedo) ~ 1:  %.3f' % (flup[0] + rfltot[-1]*(1.-albedo))
 
-    plt.figure()
-    plt.plot(rfltot, z_atm)
+    # plt.figure()
+    # plt.plot(rfltot, z_atm)
 
-    plt.figure()
-    plt.plot(flup, z_atm)
+    # plt.figure()
+    # plt.plot(flup, z_atm)
