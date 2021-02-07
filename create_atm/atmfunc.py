@@ -22,4 +22,19 @@ def RdTau(wvl, pl, pu, ps=1013.25):
         dTauR = (pl-pu)*RdTau0/ps 
         
         return dTauR
-        
+
+##combining the optical depths of aerosol and Rayleigh scattering
+def comb_dTau(dTau_R, dTau_A):
+        dTau_t = dTau_R +dTau_A
+        return dTau_t
+
+##combining the single scatter albedo of the aerosol and Rayleigh scattering
+def comb_w0(dTau_R, dTau_A, w0_A):
+        w0_t = float(dTau_R + w0_A*dTau_A)/float(dTau_R+dTau_A)
+        return w0_t
+
+##combining the Legendre moments of the aerosol and Rayleigh scattering
+def comb_uphas(dTau_R, dTau_A, w0_A, uphas_R, uphas_A):
+        uphas_t = float(dTau_R*uphas_R +w0_A*dTau_A*uphas_A)/float(dTau_R + w0_A*dTau_A)
+        return uphas_t
+
