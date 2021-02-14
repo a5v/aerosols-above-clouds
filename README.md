@@ -1,4 +1,8 @@
-# pyDISORT
+# Aerosols above Clouds
+
+This repository is largely based upon the use of the modified pyDISORT wrapper.
+
+# Use of modified pyDISORT
 
 Python wrapper to the DISORT¹ radiative transfer solver.
 
