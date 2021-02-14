@@ -1,125 +1,142 @@
 #!/usr/bin/env python
 """
-Test of the Python wrapper to the DISORT library
-
-Module '_disort' is auto-generated with f2py (version:2).
+Analysis of a single layer of the aerosol
 """
 
 import numpy as np
-#import matplotlib
-import disort
 import pandas as pd
-import atmfunc
+import disort
+import csv
+
+
+# scat.out contains 8 data sets containing the wavelength, effective radius, single-scatter albedo and
+# first 1000 Legendre polynomials for each data set
+
 
 
 ##########################################################################################################
 
 if __name__ == '__main__':
 
-    # read Rayleigh optical thickness for 325.8 nm [Ozone fitting window]
-    xy     = np.loadtxt('../test/rayleigh_layer_opd.txt')
-    #dTau   = xy[::-1,1]  # FROM TOP TO BOTTOM
-    #dTau = np.ones(49)
+    ##DISORT CONFIGURATION
 
+    umu0 = 0.698  #cosine of solar zenith angle (Default: 1.)
+    fbeam  = 1./umu0  # Ensures fluxes to be normalized to one
+    phi0   = 0.0 #solar azimuth angle (Default: 0.)
+    albedo = 0 #surface albedo (Default: 0.1)
 
-    ##read in data file
-    df = pd.read_csv('./reformat_ecmwf_atm/ecmwf_r01.csv')
-    df_new = df.T
-    df_new = df_new.rename(columns=df_new.iloc[0])
-    df_new = df_new.drop(df_new.index[:2])
+    phi = np.array([63.9]) #viewing azimuth angle where to output the RT fields (Default: 0.)
+    umu = np.array([0.883])  #cosine of viewing zenith angle where to output the RT fields (Default: 1.) 
+
     
-
-    ##create array of dTau read in from data file
-    dTau = np.array([])
-
-    for i in range(20):
-        dTau = np.insert(dTau, 0, atmfunc.RdTau(0.56, df_new['*PRE'][5*i], df_new['*PRE'][5*i+5]))
-
-    print(dTau)
-    
-    
-    #z_atm  = xy[::-1,0]  # last altitude value missing, find in header
-    #z_atm  = np.insert(z_atm, 0, 120.)
+    #prnt   = np.array([True, True, True, False, True])
+    prnt   = np.array([False, False, False, False, False])
     maxmom = 1000
 
-    N_tau  = len(dTau)
-    w0     = np.ones(N_tau)*1.
+
+    dTau_range = []
+    
+    for i in range(50):
+        a = 2**(i-10)
+        x = np.array([a])
+        dTau_range.append(x)
+
+    N_tau  = 1
     iphas  = np.ones(N_tau,dtype='int')*6
     gg     = np.zeros(N_tau)
-
-    cumTau = np.hstack([0.,dTau.cumsum()])
-    uTau   = cumTau
-    phi    = np.array([0.,60.,120.])
-    umu0   = 1./np.sqrt(2.)
-    fbeam  = 1./umu0  # Ensures fluxes to be normalized to one
-    phi0   = 0.0
-    albedo = 0.1
-    umu    = np.array([-1.,-0.5,0.5,1.])
-    prnt   = np.array([True, True, True, False, True])
-    #prnt   = np.array([False, False, False, False, False])
-
-
-    ##creating arrays of phase functions to use (Rayleigh scattering)
-    p = np.zeros((len(dTau), maxmom))
-    for i in range(len(p)):
-        p[i][0] = int(1)
-        p[i][2] =  0.1
-
-
-    dTau_R = dTau
-    w0_R = w0
-    uphas_R = p
-
-    ##set optical depth of the aerosol
-    dTau_A = 0.1
-
-    ##read in aerosols data
-
-    df_a = pd.read_csv('./aerosols/a1.csv', header = None)
-
-    w0_A = df_a[0][2]
-    uphas_A = df_a[3:]
-
-
-    # aerosol_layer = 19
-    ##combine optical thickness, single scatter albedo and phase moments
-    dTau_t = dTau_R
-    dTau_t[19] = atmfunc.comb_dTau(dTau_R[19], dTau_A)
-
-    w0_t = w0_R
-    w0_t[19] = atmfunc.comb_w0(dTau_R[19], dTau_A, w0_A)
-
-    uphas_t = uphas_R
-    for i in range(len(uphas_t[19])):
-        uphas_t[19][i] = atmfunc.comb_uphas(dTau_R[19], dTau_A, w0_A, uphas_R[19][i], np.float(uphas_A[0][i+3]))
-
-
-    cumTau = np.hstack([0.,dTau_t.cumsum()])
-    uTau   = cumTau
-
     
 
-    [rfldir, rfldn, flup, dfdt, uavg, uu, albmed, trnmed] =\
-                                      disort.run(dTau = dTau_t, w0=w0_t, iphas=iphas, uphas=uphas_t, gg=gg,
-                                                 umu0=umu0, phi0=phi0, albedo=albedo, fbeam=fbeam,
-                                                 utau=uTau, umu=umu, maxmom = maxmom, phi=phi, prnt=prnt)
+    ##READ IN WATER.CSV DATA FILE
+    ##REFORMAT DATA TO BE USED BY DISORT AND SAVED
+
+    df = pd.read_csv('./aerosols/aerosol.csv', header = None)
+
+    n_data = df.shape[1]
+
+    wvl_data = []
+    effr_data = []
+    w0_data = []
+    p_data = []
 
     
-
-
-
-
-
+    for i in range(n_data):
+        wvl_data.append(float(df[i][0:1]))
+        effr_data.append(float(df[i][1:2]))
+        w0_data.append(df[i][2:3])
+        p_data.append(df[i][3:])    
     
-    rfltot = rfldir + rfldn
-    print '\n# Energy conservation, R(TOA)+T(BOA)*(1-albedo) ~ 1:  %.3f' % (flup[0] + rfltot[-1]*(1.-albedo))
-
-    # plt.figure()
-    # plt.plot(rfltot, z_atm)
-
-    # plt.figure()
-    # plt.plot(flup, z_atm)
-
-
-
     
+    w0_array = []
+    p_array =[]
+    
+    for i in range(n_data):
+        p = p_data[i]
+        w0 = w0_data[i]
+        
+        p = np.array(p)
+        w0 = np.array(w0)
+
+        p_array.append(p)
+        w0_array.append(w0)
+        
+
+
+    ##CALLING DISORT
+    rfldir_array = []
+    rfldn_array = []
+    flup_array = []
+    dfdt_array = []
+    uavg_array = []
+    uu_array = []
+    albmed_array = []
+    trnmed_array = []
+
+
+    for j in range(n_data):    
+
+        list = []
+        
+        for i in range (len(dTau_range)):
+            [rfldir, rfldn, flup, dfdt, uavg, uu, albmed, trnmed] =\
+                disort.run(dTau=dTau_range[i], iphas=iphas,  uphas=[p_array[j]], w0=[w0_array[j]], gg=gg,
+                           umu0=umu0, phi0=phi0, albedo=albedo, fbeam=fbeam,
+                           umu=umu, phi=phi, maxmom=maxmom, prnt=prnt)
+
+            # rfldir_array.append(rfldir)
+            # rfldn_array.append(rfldn)
+            # flup_array.append(flup)
+            # dfdt_array.append(dfdt)
+            # uavg_array.append(uavg)
+            list.append(uu)
+            # albmed_array.append(albmed)
+            # trnmed_array.append(trnmed)
+        #print(list)
+        uu_array.append(list)
+
+
+    ##SAVE DATA
+    uu_save =[]
+
+    for j in range(len(uu_array)):
+        x = []
+
+        y = []
+        y.append(wvl_data[j])
+        y.append(effr_data[j])
+        x.append(y)
+        
+        for i in range(len(uu_array[j])):
+            x.append(uu_array[j][i][0][0][0])
+        uu_save.append(x)
+
+    dTau_save = []
+
+    for i in range(len(dTau_range)):
+        dTau_save.append(dTau_range[i][0])
+
+
+    with open('./atmospheres/test_aerosol.csv', 'w') as file:
+        writer = csv.writer(file)
+        writer.writerow(dTau_save)
+        for i in range(len(uu_save)):
+            writer.writerow(uu_save[i])
