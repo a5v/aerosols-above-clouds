@@ -4,9 +4,9 @@ import numpy as np
 
 
 
-##height in km to pressure in hPa (1hPa = 100Pa) converter using hydrostatic equation
+##height in km to pressure in hPa (1hPa = 100Pa) converter using hydrostatic equation for an isothermal atmosphere
 def h2p(height, ps = 1013.25):
-        H = 7
+        H = float(7.3)
 
         pressure = ps * np.exp(-float(height)/H) 
 
@@ -19,7 +19,7 @@ def h2p(height, ps = 1013.25):
 def RdTau(wvl, pl, pu, ps=1013.25): 
         RdTau0 = float((float(ps)/1013.0))/(117.03*wvl**4-1.316*wvl**2)
 
-        dTauR = (pl-pu)*RdTau0/ps 
+        dTauR = float((pl-pu)*RdTau0)/ps 
         
         return dTauR
 
