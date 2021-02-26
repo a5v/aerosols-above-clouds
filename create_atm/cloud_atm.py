@@ -21,17 +21,15 @@ if __name__ == '__main__':
 
     ##DISORT CONFIGURATION
 
-    # umu0 = 0.698  #cosine of solar zenith angle (Default: 1.)
-    umu0 = 1.
+    umu0 = 1. #cosine of solar zenith angle (Default: 1.)
     fbeam  = 1./umu0  # Ensures fluxes to be normalized to one
     phi0   = 0.0 #solar azimuth angle (Default: 0.)
-    # albedo = 0 #surface albedo (Default: 0.1)
     albedo = 0.1
 
     # phi = np.array([63.9]) #viewing azimuth angle where to output the RT fields (Default: 0.)
     phi = np.array([0.])
     # umu = np.array([0.883])  #cosine of viewing zenith angle where to output the RT fields (Default: 1.) 
-    umu = np.array([1.])
+    umu = np.array([np.sqrt(3)/2])
     
     # prnt   = np.array([True, True, True, False, True])
     prnt   = np.array([True, False, False, False, False])
@@ -71,8 +69,8 @@ if __name__ == '__main__':
 
     dTau_range_cloud = [] # set optical thickness of cloud layer
 
-    for i in range(30):
-        a = 2**(float(i-10)/2)
+    for i in range(20):
+        a = 2**(float(i-6)/2)
         x = np.array([a])
         dTau_range_cloud.append(x)
 
@@ -81,7 +79,7 @@ if __name__ == '__main__':
     ###READ IN WATER.CSV DATA FILE
     ###REFORMAT DATA TO BE USED BY DISORT AND SAVED
 
-    df_cloud = pd.read_csv('./aerosols/water2.csv', header = None)
+    df_cloud = pd.read_csv('./aerosols/water2_final.csv', header = None)
     
     N_cloud = df_cloud.shape[1]/2
 
@@ -173,7 +171,7 @@ if __name__ == '__main__':
 
 
 
-    name = './atmospheres/cloud_atm_1-2_long.csv'
+    name = './atmospheres/cloud_atm_1-2_final.csv'
         
     with open(name, 'w') as file:
         writer = csv.writer(file)
