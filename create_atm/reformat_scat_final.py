@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Reformat scat.out files into a .csv files
+Reformat scat.out files into a .csv files ignoring unphysical values
 """
 
 import csv
@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     ##READ IN SCAT.OUT DATA FILE
     file = open('./aerosols/scat_water2.out')
-
+    
     scat_file = file.read().split()
 
     data_points = 1003
@@ -30,10 +30,11 @@ if __name__ == '__main__':
     data_save = []
     
     for i in range(n_data):
-        x = []
-        for j in range(data_points*i,data_points*i + data_points):
-            x.append(scat_file[j])
-        data_save.append(x)
+        if i >= 4 and i <= 9 or i >= 14 and i <= 19:
+            x = []
+            for j in range(data_points*i,data_points*i + data_points):
+                x.append(scat_file[j])
+            data_save.append(x)
 
 
     ##reformat data to save in column format
@@ -50,7 +51,7 @@ if __name__ == '__main__':
 
     ##save file
     
-    with open('./aerosols/water2.csv', 'w') as file:
+    with open('./aerosols/water2_final.csv', 'w') as file:
         writer = csv.writer(file)
         for val in data_save_improve:
             writer.writerow(val)
