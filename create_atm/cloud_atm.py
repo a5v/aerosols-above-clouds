@@ -44,7 +44,7 @@ if __name__ == '__main__':
     ##layer 1: 1-2km cloud and Rayleigh scattering layer
     ##layer 2: 0-1km Rayleigh scattering
     
-    N_layer  = 3 ## need to change this!!!!!!!!!!!!!!!!!!!!
+    N_layer  = 3 # number of layers
     iphas  = np.ones(N_layer,dtype='int')*6
     gg     = np.zeros(N_layer)
 
@@ -56,15 +56,18 @@ if __name__ == '__main__':
     uphas_R[0][0] = 1
     uphas_R[0][2] = 0.1
 
+    cloud_l = 5
+    cloud_u = 6
+
     ##CREATE RAYLEIGH LAYER (0)
     
-    dTau_R0_v = atmfunc.RdTau(wvl_v, atmfunc.h2p(2), atmfunc.h2p(100))
-    dTau_R0_ir = atmfunc.RdTau(wvl_ir, atmfunc.h2p(2), atmfunc.h2p(100))
+    dTau_R0_v = atmfunc.RdTau(wvl_v, atmfunc.h2p(cloud_u), atmfunc.h2p(100))
+    dTau_R0_ir = atmfunc.RdTau(wvl_ir, atmfunc.h2p(cloud_u), atmfunc.h2p(100))
 
     ##CREATE CLOUD & RAYLEIGH LAYER (1)
     
-    dTau_R1_v = atmfunc.RdTau(wvl_v, atmfunc.h2p(1), atmfunc.h2p(2))
-    dTau_R1_ir = atmfunc.RdTau(wvl_ir, atmfunc.h2p(1), atmfunc.h2p(2))
+    dTau_R1_v = atmfunc.RdTau(wvl_v, atmfunc.h2p(cloud_l), atmfunc.h2p(cloud_u))
+    dTau_R1_ir = atmfunc.RdTau(wvl_ir, atmfunc.h2p(cloud_l), atmfunc.h2p(cloud_u))
 
 
     dTau_range_cloud = [] # set optical thickness of cloud layer
@@ -98,8 +101,8 @@ if __name__ == '__main__':
 
     ##CREATE RAYLEIGH LAYER (2)
     
-    dTau_R2_v = atmfunc.RdTau(wvl_v, atmfunc.h2p(0), atmfunc.h2p(1))
-    dTau_R2_ir = atmfunc.RdTau(wvl_ir, atmfunc.h2p(0), atmfunc.h2p(1))
+    dTau_R2_v = atmfunc.RdTau(wvl_v, atmfunc.h2p(0), atmfunc.h2p(cloud_l))
+    dTau_R2_ir = atmfunc.RdTau(wvl_ir, atmfunc.h2p(0), atmfunc.h2p(cloud_l))
 
 
     ###COMBINE TO CREATE ATMOSPHERE & CALL DISORT
@@ -171,7 +174,7 @@ if __name__ == '__main__':
 
 
 
-    name = './atmospheres/cloud_atm_1-2_final.csv'
+    name = './atmospheres/cloud_atm_' + str(cloud_l) + '-' + str(cloud_u) + '.csv'
         
     with open(name, 'w') as file:
         writer = csv.writer(file)
