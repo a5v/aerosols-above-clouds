@@ -1,8 +1,10 @@
 # Aerosols above Clouds
 
-This repository is largely based upon the use of the modified pyDISORT wrapper.
+![](https://github.com/a5v/aerosols-above-clouds/blob/main/analyse_atm/fig_smoke_perturbation_pres5.png)
 
-# Use of modified pyDISORT
+This repository contains simple radiative transfer model to calculate the top-of-atmosphere (TOA) reflectance of a plane-parallel atmosphere. The model uses the Discrete Ordinate Radiative Transfer software package to solve the radiative transfer equation for atmospheric layers of Rayleigh scattering air molecules, liquid water clouds, and aerosols and approximates the Earth's surface as a Lambertian reflector. The model can be used to compare the TOA reflectance of a cloud peturbed by a layer of aerosol, as shown in the figure above.
+
+## Use of modified pyDISORT
 
 Python wrapper to the DISORT¹ radiative transfer solver.
 
